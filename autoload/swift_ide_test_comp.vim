@@ -8,9 +8,12 @@ function! swift_ide_test_comp#complete(findstart, base) abort
 
   let snip = matchstr(a:base, '\v\w+$')
   let content[line] = substitute(a:base, '\v\w+$', '', '') . "#^SEIFT_VIM_COMP_ANCHOR^#" . content[line]
-  call writefile(content, "/tmp/hoge.swift")
 
-  let outputs = systemlist('swift-ide-test -code-completion -source-filename /tmp/hoge.swift -code-completion-token=SEIFT_VIM_COMP_ANCHOR')
+  let tmpfile = tempname()
+  call writefile(content, tmpfile)
+  let outputs = systemlist('swift-ide-test -code-completion -source-filename ' . tmpfile . ' -code-completion-token=SEIFT_VIM_COMP_ANCHOR')
+  call delete(tmpfile)
+
   let res = []
   for o in outputs
     let word = matchstr(o, '\v^[^ ]+\:\s+\zs\w+')
